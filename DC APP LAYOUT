@@ -1,1 +1,309 @@
 //CONTINUATION LAYOUTS
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from './utils';
+import { base44 } from '@/api/base44Client';
+import { 
+  LayoutDashboard, 
+  Package, 
+  Factory, 
+  ShoppingCart, 
+  Truck, 
+  Users, 
+  FileText, 
+  Settings, 
+  ChevronDown,
+  Menu,
+  X,
+  LogOut,
+  Building2,
+  Boxes,
+  ClipboardList,
+  BarChart3,
+  UserCircle,
+  Bell
+} from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+
+const navigation = [
+  { name: 'Dashboard', href: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'management', 'sales', 'concessionaire', 'guest', 'dashboard'] },
+  { 
+    name: 'Purchasing', 
+    icon: ShoppingCart,
+    roles: ['admin', 'management'],
+    children: [
+      { name: 'Suppliers', href: 'Suppliers', roles: ['admin', 'management'] },
+      { name: 'Raw Materials', href: 'RawMaterials', roles: ['admin', 'management'] },
+      { name: 'Purchase Orders', href: 'PurchaseOrders', roles: ['admin', 'management'] },
+    ]
+  },
+  { 
+    name: 'Inventory', 
+    icon: Boxes,
+    roles: ['admin', 'management'],
+    children: [
+      { name: 'Raw Materials Stock', href: 'RawMaterialsInventory', roles: ['admin', 'management'] },
+      { name: 'Finished Goods', href: 'ProductsInventory', roles: ['admin', 'management'] },
+      { name: 'Transactions', href: 'InventoryTransactions', roles: ['admin', 'management'] },
+    ]
+  },
+  { 
+    name: 'Production', 
+    icon: Factory,
+    roles: ['admin', 'management'],
+    children: [
+      { name: 'Products', href: 'Products', roles: ['admin', 'management'] },
+      { name: 'Production Batches', href: 'ProductionBatches', roles: ['admin', 'management'] },
+      { name: 'Schedule', href: 'ProductionSchedule', roles: ['admin', 'management'] },
+    ]
+  },
+  { 
+    name: 'Sales', 
+    icon: ClipboardList,
+    roles: ['admin', 'management', 'sales'],
+    children: [
+      { name: 'Customers', href: 'Customers', roles: ['admin', 'management', 'sales'] },
+      { name: 'Sales Orders', href: 'SalesOrders', roles: ['admin', 'management', 'sales'] },
+      { name: 'New Order', href: 'NewSalesOrder', roles: ['admin', 'sales'] },
+    ]
+  },
+  { 
+    name: 'Delivery', 
+    icon: Truck,
+    roles: ['admin', 'management', 'sales', 'delivery'],
+    children: [
+      { name: 'Deliveries', href: 'Deliveries', roles: ['admin', 'management', 'sales', 'delivery'] },
+      { name: 'Schedule', href: 'DeliverySchedule', roles: ['admin', 'management', 'sales', 'delivery'] },
+    ]
+  },
+  { 
+    name: 'Reports', 
+    icon: BarChart3,
+    roles: ['admin', 'management', 'sales', 'concessionaire', 'reports'],
+    children: [
+      { name: 'Sales Report', href: 'SalesReport', roles: ['admin', 'management', 'sales', 'concessionaire', 'reports'] },
+      { name: 'Production Report', href: 'ProductionReport', roles: ['admin', 'management', 'concessionaire', 'reports'] },
+      { name: 'Inventory Report', href: 'InventoryReport', roles: ['admin', 'management', 'concessionaire', 'reports'] },
+    ]
+  },
+  { name: 'Users', href: 'UserManagement', icon: Users, roles: ['admin'] },
+];
+
+export default function Layout({ children, currentPageName }) {
+  const [user, setUser] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState({});
+
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(console.error);
+  }, []);
+
+  const userRole = user?.custom_role || user?.role || 'guest';
+  const userDepartment = user?.department || '';
+
+  const hasAccess = (roles) => {
+    // Admin has access to everything
+    if (userRole === 'admin') return true;
+    
+    // Management has access to everything (read-only handled in pages)
+    if (userRole === 'management') return true;
+    
+    // Sales has access to sales, delivery, reports, dashboard
+    if (userRole === 'sales') {
+      return roles.some(r => ['sales', 'delivery', 'reports', 'dashboard'].includes(r));
+    }
+    
+    // Concessionaire has access to dashboard and reports only
+    if (userRole === 'concessionaire') {
+      return roles.some(r => ['dashboard', 'reports'].includes(r));
+    }
+    
+    // Guest has access to dashboard only
+    if (userRole === 'guest') {
+      return roles.includes('dashboard');
+    }
+    
+    // Fallback to role/department check
+    return roles.includes(userRole) || roles.includes(userDepartment);
+  };
+
+  const toggleMenu = (name) => {
+    setExpandedMenus(prev => ({ ...prev, [name]: !prev[name] }));
+  };
+
+  const filteredNavigation = navigation.filter(item => hasAccess(item.roles));
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={cn(
+        "fixed top-0 left-0 z-50 h-full w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="flex items-center justify-between h-16 px-6 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+              <Factory className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="font-semibold text-slate-900 text-lg">FoodMfg</h1>
+              <p className="text-xs text-slate-500">Manufacturing Suite</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg"
+          >
+            <X className="w-5 h-5 text-slate-500" />
+          </button>
+        </div>
+
+        <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-8rem)]">
+          {filteredNavigation.map((item) => (
+            <div key={item.name}>
+              {item.children ? (
+                <>
+                  <button
+                    onClick={() => toggleMenu(item.name)}
+                    className={cn(
+                      "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                      expandedMenus[item.name] 
+                        ? "bg-slate-100 text-slate-900" 
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="w-5 h-5" />
+                      {item.name}
+                    </div>
+                    <ChevronDown className={cn(
+                      "w-4 h-4 transition-transform",
+                      expandedMenus[item.name] && "rotate-180"
+                    )} />
+                  </button>
+                  {expandedMenus[item.name] && (
+                    <div className="mt-1 ml-4 pl-4 border-l-2 border-slate-100 space-y-1">
+                      {item.children.filter(child => hasAccess(child.roles)).map((child) => (
+                        <Link
+                          key={child.href}
+                          to={createPageUrl(child.href)}
+                          onClick={() => setSidebarOpen(false)}
+                          className={cn(
+                            "block px-3 py-2 rounded-lg text-sm transition-all",
+                            currentPageName === child.href
+                              ? "bg-emerald-50 text-emerald-700 font-medium"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                          )}
+                        >
+                          {child.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Link
+                  to={createPageUrl(item.href)}
+                  onClick={() => setSidebarOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                    currentPageName === item.href
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  )}
+                >
+                  <item.icon className="w-5 h-5" />
+                  {item.name}
+                </Link>
+              )}
+            </div>
+          ))}
+        </nav>
+
+        {/* User section at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-100 bg-white">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                  <UserCircle className="w-5 h-5 text-slate-600" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-slate-900 truncate">{user?.full_name || 'User'}</p>
+                  <p className="text-xs text-slate-500 capitalize">{user?.custom_role || user?.role || 'guest'}</p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link to={createPageUrl('Profile')}>
+                  <UserCircle className="w-4 h-4 mr-2" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-red-600">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <div className="lg:pl-72">
+        {/* Top bar */}
+        <header className="sticky top-0 z-30 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200">
+          <div className="flex items-center justify-between h-full px-4 lg:px-8">
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 hover:bg-slate-100 rounded-lg"
+            >
+              <Menu className="w-5 h-5 text-slate-600" />
+            </button>
+            
+            <div className="hidden lg:block">
+              <h2 className="text-lg font-semibold text-slate-900">
+                {currentPageName?.replace(/([A-Z])/g, ' $1').trim() || 'Dashboard'}
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="w-5 h-5 text-slate-600" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="p-4 lg:p-8">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
