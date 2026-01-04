@@ -1,1 +1,946 @@
 //CONTINUATION ENTITIES
+
+
+
+
+
+
+// SUPPLIER
+{
+  "name": "Supplier",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Supplier company name"
+    },
+    "contact_person": {
+      "type": "string",
+      "description": "Primary contact name"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "payment_terms": {
+      "type": "string",
+      "enum": [
+        "net_15",
+        "net_30",
+        "net_45",
+        "net_60",
+        "cod"
+      ],
+      "default": "net_30"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending_approval"
+      ],
+      "default": "active"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "contact_person",
+    "email"
+  ]
+}
+
+// RAW MATERIAL
+{
+  "name": "RawMaterial",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Material name"
+    },
+    "sku": {
+      "type": "string",
+      "description": "Stock keeping unit"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "ingredients",
+        "packaging",
+        "additives",
+        "flavorings",
+        "preservatives",
+        "other"
+      ]
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "kg",
+        "g",
+        "l",
+        "ml",
+        "pcs",
+        "box",
+        "pallet"
+      ]
+    },
+    "current_stock": {
+      "type": "number",
+      "default": 0
+    },
+    "minimum_stock": {
+      "type": "number",
+      "description": "Reorder point"
+    },
+    "unit_cost": {
+      "type": "number"
+    },
+    "preferred_supplier_id": {
+      "type": "string",
+      "description": "Reference to Supplier"
+    },
+    "shelf_life_days": {
+      "type": "number"
+    },
+    "storage_requirements": {
+      "type": "string",
+      "enum": [
+        "ambient",
+        "refrigerated",
+        "frozen"
+      ]
+    },
+    "allergen_info": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "discontinued",
+        "pending_approval"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name",
+    "sku",
+    "category",
+    "unit"
+  ]
+}
+
+//PURCHASE ORDER
+
+{
+  "name": "PurchaseOrder",
+  "type": "object",
+  "properties": {
+    "po_number": {
+      "type": "string",
+      "description": "Auto-generated PO number"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "Reference to Supplier"
+    },
+    "supplier_name": {
+      "type": "string"
+    },
+    "order_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "expected_delivery": {
+      "type": "string",
+      "format": "date"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "material_id": {
+            "type": "string"
+          },
+          "material_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "subtotal": {
+      "type": "number"
+    },
+    "tax": {
+      "type": "number"
+    },
+    "total_amount": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_approval",
+        "approved",
+        "ordered",
+        "partially_received",
+        "received",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "receiving_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "supplier_id",
+    "order_date",
+    "items"
+  ]
+}
+
+// PRODUCT
+
+{
+  "name": "Product",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Product name"
+    },
+    "sku": {
+      "type": "string",
+      "description": "Product SKU"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "beverages",
+        "snacks",
+        "dairy",
+        "bakery",
+        "frozen",
+        "canned",
+        "condiments",
+        "other"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "pcs",
+        "pack",
+        "box",
+        "case",
+        "kg",
+        "l"
+      ]
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Selling price per unit"
+    },
+    "cost_price": {
+      "type": "number",
+      "description": "Manufacturing cost per unit"
+    },
+    "current_stock": {
+      "type": "number",
+      "default": 0
+    },
+    "minimum_stock": {
+      "type": "number"
+    },
+    "shelf_life_days": {
+      "type": "number"
+    },
+    "recipe": {
+      "type": "array",
+      "description": "Bill of Materials",
+      "items": {
+        "type": "object",
+        "properties": {
+          "material_id": {
+            "type": "string"
+          },
+          "material_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "production_time_minutes": {
+      "type": "number"
+    },
+    "batch_size": {
+      "type": "number",
+      "description": "Standard batch production quantity"
+    },
+    "allergen_info": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "discontinued",
+        "development"
+      ],
+      "default": "active"
+    },
+    "image_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "sku",
+    "category",
+    "unit",
+    "unit_price"
+  ]
+}
+
+// PRODUCTION BATCH
+
+{
+  "name": "ProductionBatch",
+  "type": "object",
+  "properties": {
+    "batch_number": {
+      "type": "string",
+      "description": "Unique batch identifier for traceability"
+    },
+    "product_id": {
+      "type": "string"
+    },
+    "product_name": {
+      "type": "string"
+    },
+    "planned_quantity": {
+      "type": "number"
+    },
+    "actual_quantity": {
+      "type": "number"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "production_line": {
+      "type": "string",
+      "enum": [
+        "line_1",
+        "line_2",
+        "line_3",
+        "line_4"
+      ]
+    },
+    "materials_used": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "material_id": {
+            "type": "string"
+          },
+          "material_name": {
+            "type": "string"
+          },
+          "batch_number": {
+            "type": "string"
+          },
+          "quantity_used": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in_progress",
+        "completed",
+        "on_hold",
+        "cancelled",
+        "quality_check"
+      ],
+      "default": "scheduled"
+    },
+    "quality_check": {
+      "type": "object",
+      "properties": {
+        "checked_by": {
+          "type": "string"
+        },
+        "checked_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "temperature": {
+          "type": "number"
+        },
+        "ph_level": {
+          "type": "number"
+        },
+        "visual_inspection": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "fail",
+            "conditional"
+          ]
+        }
+      }
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "operator": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "waste_quantity": {
+      "type": "number"
+    },
+    "waste_reason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "batch_number",
+    "product_id",
+    "planned_quantity",
+    "scheduled_date"
+  ]
+}
+
+// CUSTOMER
+
+{
+  "name": "Customer",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Customer/Company name"
+    },
+    "customer_type": {
+      "type": "string",
+      "enum": [
+        "retail",
+        "wholesale",
+        "distributor",
+        "online",
+        "restaurant",
+        "institution"
+      ]
+    },
+    "contact_person": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "billing_address": {
+      "type": "string"
+    },
+    "shipping_address": {
+      "type": "string"
+    },
+    "payment_terms": {
+      "type": "string",
+      "enum": [
+        "cod",
+        "net_7",
+        "net_15",
+        "net_30",
+        "prepaid"
+      ],
+      "default": "net_30"
+    },
+    "credit_limit": {
+      "type": "number"
+    },
+    "current_balance": {
+      "type": "number",
+      "default": 0
+    },
+    "discount_rate": {
+      "type": "number",
+      "description": "Customer-specific discount %"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "on_hold",
+        "blocked"
+      ],
+      "default": "active"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "delivery_zone": {
+      "type": "string",
+      "enum": [
+        "zone_a",
+        "zone_b",
+        "zone_c",
+        "zone_d",
+        "pickup"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "customer_type",
+    "email"
+  ]
+}
+
+// SALES ORDER
+
+{
+  "name": "SalesOrder",
+  "type": "object",
+  "properties": {
+    "order_number": {
+      "type": "string"
+    },
+    "customer_id": {
+      "type": "string"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "order_type": {
+      "type": "string",
+      "enum": [
+        "offline",
+        "online",
+        "phone",
+        "recurring"
+      ],
+      "default": "offline"
+    },
+    "order_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "requested_delivery_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "batch_number": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "subtotal": {
+      "type": "number"
+    },
+    "discount_amount": {
+      "type": "number"
+    },
+    "tax_amount": {
+      "type": "number"
+    },
+    "delivery_fee": {
+      "type": "number"
+    },
+    "total_amount": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_approval",
+        "approved",
+        "processing",
+        "ready",
+        "dispatched",
+        "delivered",
+        "cancelled",
+        "returned"
+      ],
+      "default": "draft"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "partial",
+        "paid",
+        "overdue",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "bank_transfer",
+        "check",
+        "credit",
+        "online"
+      ]
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "shipping_address": {
+      "type": "string"
+    },
+    "delivery_zone": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "internal_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "customer_id",
+    "order_date",
+    "items"
+  ]
+}
+
+// DELIVERY
+
+{
+  "name": "Delivery",
+  "type": "object",
+  "properties": {
+    "delivery_number": {
+      "type": "string"
+    },
+    "order_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "order_numbers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "scheduled_time_slot": {
+      "type": "string",
+      "enum": [
+        "morning",
+        "afternoon",
+        "evening"
+      ]
+    },
+    "driver": {
+      "type": "string"
+    },
+    "vehicle": {
+      "type": "string"
+    },
+    "route": {
+      "type": "string"
+    },
+    "delivery_zone": {
+      "type": "string",
+      "enum": [
+        "zone_a",
+        "zone_b",
+        "zone_c",
+        "zone_d"
+      ]
+    },
+    "stops": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "type": "string"
+          },
+          "customer_name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "sequence": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "arrived",
+              "delivered",
+              "failed"
+            ]
+          },
+          "delivered_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signature_url": {
+            "type": "string"
+          },
+          "photo_url": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "loading",
+        "in_transit",
+        "completed",
+        "partial",
+        "cancelled"
+      ],
+      "default": "scheduled"
+    },
+    "departure_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completion_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "total_distance": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "delivery_number",
+    "scheduled_date",
+    "delivery_zone"
+  ]
+}
+
+
+// INVENTORY TRANSACTION 
+
+{
+  "name": "InventoryTransaction",
+  "type": "object",
+  "properties": {
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "receipt",
+        "issue",
+        "adjustment",
+        "transfer",
+        "waste",
+        "return"
+      ]
+    },
+    "item_type": {
+      "type": "string",
+      "enum": [
+        "raw_material",
+        "finished_product"
+      ]
+    },
+    "item_id": {
+      "type": "string"
+    },
+    "item_name": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "batch_number": {
+      "type": "string"
+    },
+    "reference_type": {
+      "type": "string",
+      "enum": [
+        "purchase_order",
+        "production_batch",
+        "sales_order",
+        "manual",
+        "quality_reject"
+      ]
+    },
+    "reference_id": {
+      "type": "string"
+    },
+    "reference_number": {
+      "type": "string"
+    },
+    "before_quantity": {
+      "type": "number"
+    },
+    "after_quantity": {
+      "type": "number"
+    },
+    "unit_cost": {
+      "type": "number"
+    },
+    "total_value": {
+      "type": "number"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "transaction_type",
+    "item_type",
+    "item_id",
+    "quantity"
+  ]
+}
+
+
+// TABLE OF CONTENTS
+// 8 SUPPLIER
+// 67 RAW MATERIAL
+// 153 PURCHASE ORDER
+// 247 PRODUCT
+// 362 PRODUCTION BATCH
+// 497 CUSTOMER
+// 587 SALES ORDER
+// 726 DELIVERY
+// 854 INVENTORY TRANSACTION 
