@@ -1,6 +1,19 @@
 //This is an MVP for teh Dimsum Corner App - A comprehensive platform for managing the entire Dimsum Corner production and distribution, from raw material procurement production and sales& delivery with sales reporting. It helps manage the entire operational lifecycle, with role-based credentials to maximize productivity, traceability and transparency across departments.
 //https://dimsumcornercebu.base44.app/
 
+// 489 DASHBOARD
+// 817 DELIVERIES // 1310 DELIVERIES SCHEDULE 
+// 1567 INVENTORY REPORT 
+// 4738 PROFILE
+// 4961 PURCHASE ORDERS
+// 5576 RAW MATERIALS
+// 6021 RAW MATERIALS INVENTORY
+// 6424 SALES ORDER
+// 7310 SUPPLIERS
+// 7666 USER MANAGEMENT
+
+
+
 //PAGES********************
 //PAGES - Customers*****
 import React, { useState } from 'react';
